@@ -1,14 +1,26 @@
+import { useEffect } from "react";
+import { useRef } from "react";
 import { useState } from "react";
+import { connectWS } from "./ws.js";
 
 export default function App() {
   const [userName, setUserName] = useState("");
   const [showNamePopup, setShowNamePopup] = useState(true);
   const [inputName, setInputName] = useState("");
 
+  const socket = useRef(null)
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
   const [typers] = useState([]); // dummy for UI only
+
+  useEffect(() => {
+    socket.current = connectWS();
+    socket.current.on('connect', () => {
+
+    })
+  }, [])
 
   // FORMAT TIME
   function formatTime(ts) {
@@ -23,7 +35,8 @@ export default function App() {
     e.preventDefault();
     const trimmed = inputName.trim();
     if (!trimmed) return;
-
+    // JOIN ROOM
+    socket.current.emit('join room', trimmed);
     setUserName(trimmed);
     setShowNamePopup(false);
   }
@@ -117,11 +130,10 @@ export default function App() {
                   className={`flex ${mine ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[78%] p-3 rounded-[18px] text-sm shadow-sm ${
-                      mine
+                    className={`max-w-[78%] p-3 rounded-[18px] text-sm shadow-sm ${mine
                         ? "bg-[#DCF8C6]"
                         : "bg-white"
-                    }`}
+                      }`}
                   >
                     <div className="whitespace-pre-wrap">{m.text}</div>
 
