@@ -10,6 +10,8 @@ export default function App() {
 
   const socket = useRef(null)
 
+  const timer = useRef(null)
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
@@ -40,15 +42,29 @@ export default function App() {
         setTypers((prev) => prev.filter((u) => u !== username))
       })
     }, [])
-  })
+    return () => {
+      socket.current.off('notification');
+      socket.current.off('new message');
+      socket.current.off('typing');
+      socket.current.off('stop typing');
+    }
+  }, [])
   // useeffect for typing 
 
   useEffect(() => {
     if (!text) return
     socket.current.emit("typing", userName)
-    setTimeout(() => {
+
+    clearTimeout(timer.current)
+
+    timer.current = setTimeout(() => {
       socket.current.emit("stop typing", userName)
     }, 1000)
+
+    return () => {
+      clearTimeout(timer.current)
+    }
+
   }, [text, userName])
 
   // FORMAT TIME
