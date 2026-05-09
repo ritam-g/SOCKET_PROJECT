@@ -36,15 +36,19 @@ export default function App() {
           return [...prev, username]
         })
       })
-    })
-  }, [])
-
+      socket.current.on("stop typing", (username) => {
+        setTypers((prev) => prev.filter((u) => u !== username))
+      })
+    }, [])
+  })
   // useeffect for typing 
 
   useEffect(() => {
     if (!text) return
     socket.current.emit("typing", userName)
-
+    setTimeout(() => {
+      socket.current.emit("stop typing", userName)
+    }, 1000)
   }, [text, userName])
 
   // FORMAT TIME
