@@ -18,7 +18,11 @@ export default function App() {
   useEffect(() => {
     socket.current = connectWS();
     socket.current.on('connect', () => {
-
+      socket.current.on("notification",(username)=>{
+        console.log('====================================');
+        console.log(`${username} joined the room`);
+        console.log('====================================');
+      })
     })
   }, [])
 

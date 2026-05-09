@@ -25,6 +25,8 @@ io.on("connection", (socket) => {
     socket.on('join room',async (name) => {
         await socket.join(ROOM);
         console.log(`${name} joined the room`);
+        // notificaiton 
+        io.to(ROOM).emit("notification", name);
     });
 
     socket.on('disconnect', () => {
