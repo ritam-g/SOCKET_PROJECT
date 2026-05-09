@@ -39,6 +39,12 @@ io.on("connection", (socket) => {
         console.log('====================================');
         io.to(ROOM).emit("new message", msg);
     })
+    // now typing event
+    socket.on("typing",(username)=>{
+        console.log(username,'is typing');
+        
+        socket.to(ROOM).emit("typing", username);
+    })
     // event listeners of leave room
     socket.on('disconnect', () => {
         console.log('user disconnected', socket.id);

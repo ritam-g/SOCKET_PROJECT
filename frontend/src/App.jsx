@@ -13,7 +13,7 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
-  const [typers] = useState([]); // dummy for UI only
+  const [typers, setTypers] = useState([]); // dummy for UI only
 
   useEffect(() => {
     socket.current = connectWS();
@@ -30,8 +30,22 @@ export default function App() {
         console.log('====================================');
         setMessages((prev) => [...prev, msg])
       })
+      socket.current.on("typing", (username) => {
+        setTypers((prev) => {
+          if (prev.includes(username)) return prev;
+          return [...prev, username]
+        })
+      })
     })
   }, [])
+
+  // useeffect for typing 
+
+  useEffect(() => {
+    if (!text) return
+    socket.current.emit("typing", userName)
+
+  }, [text, userName])
 
   // FORMAT TIME
   function formatTime(ts) {
