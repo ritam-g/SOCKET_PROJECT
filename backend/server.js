@@ -22,13 +22,24 @@ const io = new Server(server, {
 const ROOM = 'group'
 io.on("connection", (socket) => {
     console.log('a user connected', socket.id);
+    //event listeners of join room 
     socket.on('join room',async (name) => {
         await socket.join(ROOM);
         console.log(`${name} joined the room`);
         // notificaiton 
-        io.to(ROOM).emit("notification", name);
+        // io.to(ROOM).emit("notification", name);
+        // broadcast to all except sender
+        socket.to(ROOM).emit("notification", name);
     });
-
+    // envent for sending message in room 
+    socket.on(`send message`,(msg)=>{
+        // broadcast to all in the room including sender
+         console.log('====================================');
+        console.log('client send message');
+        console.log('====================================');
+        io.to(ROOM).emit("new message", msg);
+    })
+    // event listeners of leave room
     socket.on('disconnect', () => {
         console.log('user disconnected', socket.id);
     });

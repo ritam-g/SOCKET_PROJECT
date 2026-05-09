@@ -18,10 +18,17 @@ export default function App() {
   useEffect(() => {
     socket.current = connectWS();
     socket.current.on('connect', () => {
-      socket.current.on("notification",(username)=>{
+      socket.current.on("notification", (username) => {
         console.log('====================================');
         console.log(`${username} joined the room`);
         console.log('====================================');
+      })
+
+      socket.current.on("new message", (msg) => {
+        console.log('====================================');
+        console.log(msg);
+        console.log('====================================');
+        setMessages((prev) => [...prev, msg])
       })
     })
   }, [])
@@ -41,6 +48,7 @@ export default function App() {
     if (!trimmed) return;
     // JOIN ROOM
     socket.current.emit('join room', trimmed);
+
     setUserName(trimmed);
     setShowNamePopup(false);
   }
@@ -56,8 +64,9 @@ export default function App() {
       text: t,
       ts: Date.now(),
     };
+    socket.current.emit("send message", msg);
+    // setMessages((prev) => [...prev, msg]);
 
-    setMessages((prev) => [...prev, msg]);
     setText("");
   }
 
@@ -135,8 +144,8 @@ export default function App() {
                 >
                   <div
                     className={`max-w-[78%] p-3 rounded-[18px] text-sm shadow-sm ${mine
-                        ? "bg-[#DCF8C6]"
-                        : "bg-white"
+                      ? "bg-[#DCF8C6]"
+                      : "bg-white"
                       }`}
                   >
                     <div className="whitespace-pre-wrap">{m.text}</div>
