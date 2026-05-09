@@ -11,11 +11,20 @@ export default function App() {
   const socket = useRef(null)
 
   const timer = useRef(null)
+  const userNameRef = useRef("");
+  const stopTypingRef = useRef(() => {});
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
   const [typers, setTypers] = useState([]); // dummy for UI only
+
+  userNameRef.current = userName;
+  stopTypingRef.current = () => {
+    const currentUserName = userNameRef.current;
+    if (!socket.current || !currentUserName) return;
+    socket.current.emit("stop typing", currentUserName);
+  };
 
   useEffect(() => {
     socket.current = connectWS();
@@ -43,22 +52,28 @@ export default function App() {
       })
     }, [])
     return () => {
+      stopTypingRef.current();
       socket.current.off('notification');
       socket.current.off('new message');
       socket.current.off('typing');
       socket.current.off('stop typing');
+      socket.current.disconnect();
     }
   }, [])
   // useeffect for typing 
 
   useEffect(() => {
-    if (!text) return
+    if (!text) {
+      stopTypingRef.current();
+      return;
+    }
+
     socket.current.emit("typing", userName)
 
     clearTimeout(timer.current)
 
     timer.current = setTimeout(() => {
-      socket.current.emit("stop typing", userName)
+      stopTypingRef.current();
     }, 1000)
 
     return () => {
@@ -102,6 +117,7 @@ export default function App() {
     // setMessages((prev) => [...prev, msg]);
 
     setText("");
+    stopTypingRef.current();
   }
 
   // ENTER KEY
