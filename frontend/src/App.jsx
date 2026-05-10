@@ -10,9 +10,11 @@ export default function App() {
 
   const socket = useRef(null)
 
+  const isTypingRef = useRef(false)
+
   const timer = useRef(null)
   const userNameRef = useRef("");
-  const stopTypingRef = useRef(() => {});
+  const stopTypingRef = useRef(() => { });
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
@@ -62,26 +64,37 @@ export default function App() {
   }, [])
   // useeffect for typing 
 
+
   useEffect(() => {
-    if (!text) {
-      stopTypingRef.current();
+    if (!socket.current || !userName) return;
+
+    // If input is empty, stop typing immediately
+    if (!text.trim()) {
+      if (isTypingRef.current) {
+        stopTypingRef.current();
+        isTypingRef.current = false;
+      }
       return;
     }
 
-    socket.current.emit("typing", userName)
+    // Send "typing" only once
+    if (!isTypingRef.current) {
+      socket.current.emit("typing", userName);
+      isTypingRef.current = true;
+    }
 
-    clearTimeout(timer.current)
+    // Restart timer
+    clearTimeout(timer.current);
 
     timer.current = setTimeout(() => {
       stopTypingRef.current();
-    }, 1000)
+      isTypingRef.current = false;
+    }, 1000);
 
     return () => {
-      clearTimeout(timer.current)
-    }
-
-  }, [text, userName])
-
+      clearTimeout(timer.current);
+    };
+  }, [text, userName]);
   // FORMAT TIME
   function formatTime(ts) {
     const d = new Date(ts);
