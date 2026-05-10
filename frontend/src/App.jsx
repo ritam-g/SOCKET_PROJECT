@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRef } from "react";
 import { useState } from "react";
-import { connectWS } from "./ws.js";
+import {  connectWSRender } from "./ws.js";
 
 export default function App() {
   const [userName, setUserName] = useState("");
@@ -29,7 +29,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    socket.current = connectWS();
+    socket.current = connectWSRender();
     socket.current.on('connect', () => {
       socket.current.on("notification", (username) => {
         console.log('====================================');
