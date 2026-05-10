@@ -126,11 +126,21 @@ export default function App() {
       text: t,
       ts: Date.now(),
     };
-    socket.current.emit("send message", msg);
-    // setMessages((prev) => [...prev, msg]);
 
+    // Send message to server
+    socket.current.emit("send message", msg);
+
+    // Clear input box
     setText("");
-    stopTypingRef.current();
+
+    // Cancel the pending "stop typing" timer
+    clearTimeout(timer.current);
+
+    // Emit "stop typing" only if user was marked as typing
+    if (isTypingRef.current) {
+      stopTypingRef.current();
+      isTypingRef.current = false;
+    }
   }
 
   // ENTER KEY
