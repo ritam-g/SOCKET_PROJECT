@@ -23,12 +23,13 @@ app.use(
 const server = createServer(app);
 
 const io = new Server(server, {
-    origin: [
-        'http://localhost:5173',
-        'https://socket-project-4pa7.onrender.com',
-
-    ],
-    methods: ['GET', 'POST'],
+    cors: {
+        origin: [
+            'http://localhost:5173',
+            'https://socket-project-4pa7.onrender.com',
+        ],
+        methods: ['GET', 'POST'],
+    },
 });
 const ROOM = 'group'
 io.on("connection", (socket) => {
